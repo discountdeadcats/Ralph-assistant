@@ -1,2 +1,2 @@
 # Ralph-assistant
-This is my Robtic ALl Purpose Helper. A ai 
+This is my Robtic ALl Purpose Helper. An AI anthropic Alexa like device
