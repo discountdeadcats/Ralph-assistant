@@ -21,6 +21,8 @@ Buttons like Alexa
 Mute, wake, volume 
 Lights
 
+voice terminal 
+Basically a voice based bash terminal
 
 Price 
 I want this to be under one hundred dollars for the whole project
