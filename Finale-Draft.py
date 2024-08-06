@@ -6,13 +6,14 @@ import json
 import anthropic
 import os
 import time
+import re
+
 
 # Initialize the speech recognizer, text-to-speech engine, and Anthropic client
 recognizer = sr.Recognizer()
 engine = pyttsx3.init()
 client = anthropic.Anthropic(
     # defaults to os.environ.get("ANTHROPIC_API_KEY")
-    api_key="API-KEY-Here",
 )
 # Function to speak text
 def speak(text):
@@ -86,7 +87,16 @@ def detect_wake_word(wake_word="hey ralph"):
 
     return False
 
-# Main loop
+def clean_text(text):
+    if isinstance(text, str):
+        # Remove newline characters
+        text = text.replace('\n', ' ')
+        # Remove extra spaces
+        text = re.sub(r'\s+', ' ', text)
+        # Remove leading/trailing whitespace
+        text = text.strip()
+    return text
+
 def main():
     while True:
         if detect_wake_word():
@@ -101,32 +111,30 @@ def main():
                         model="claude-3-5-sonnet-20240620",
                         max_tokens=500,
                         temperature=0,
-                        system="You are a Chatbot like Amazon Alexa, or google home. your respons will be spoken so they should be formated appropriately .",
+                        system="You are a Chatbot like Amazon Alexa, or google home. Your responses will be spoken so they should be formatted appropriately.",
                         messages=[
                             {
                                 "role": "user",
-                                "content": [
-                                    {
-                                        "type": "text",
-                                        "text": user_input
-                                    }
-                                ]
+                                "content": user_input
                             }
                         ]
                     )
-                    print(message.content)
-                
-                    ai_response = message.content
-                    print(f"AI response: {ai_response}")
-                    speak(ai_response)
+                    
+                    # Print the entire message object for debugging
+                    print("Raw API response:", message)
+                    
+                    # Extract the text content from the message
+                    if message.content and isinstance(message.content, list) and len(message.content) > 0:
+                        ai_response = message.content[0].text
+                    else:
+                        ai_response = str(message.content)
+                    
+                    cleaned_response = clean_text(ai_response)
+                    print(f"AI response: {cleaned_response}")
+                    speak(cleaned_response)
                 except Exception as e:
                     print(f"Error communicating with Anthropic API: {str(e)}")
                     speak("I'm sorry, I encountered an error while processing your request.")
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
